@@ -33,7 +33,7 @@ class YOLO2VOC:
         self.dataset_name = yolo_dir.split(os.sep)[-1]
         self.class_mapping = class_mapping
 
-    def convert(self, extension='.jpg'):
+    def convert(self, extension='.jpg', train_val_percent=1, train_percent=0.8):
         yolo_dir = Path(self.yolo_dir)
         for yolo in yolo_dir.glob("*.txt"):
             yolo_file = str(yolo.absolute())
@@ -44,7 +44,7 @@ class YOLO2VOC:
             self.create_voc_dataset(voc_labels, image_path)
 
         # split train, validate, test dataset
-        self.split_train_val_test(train_val_percent=0.9, train_percent=0.8)
+        self.split_train_val_test(train_val_percent=train_val_percent, train_percent=train_percent)
 
     def extract_from_yolo_file(self, yolo_file, image_path):
         img = Image.open(image_path)
@@ -58,10 +58,10 @@ class YOLO2VOC:
                 bbox_height = float(bbox_height) * height
                 center_x = float(center_x) * width
                 center_y = float(center_y) * height
-                xmin = int(center_x - (bbox_width / 2)) + 1
-                ymin = int(center_y - (bbox_height / 2)) + 1
-                xmax = int(center_x + (bbox_width / 2))
-                ymax = int(center_y + (bbox_height / 2))
+                xmin = max(int(center_x - (bbox_width / 2)), 1)
+                ymin = max(int(center_y - (bbox_height / 2)), 1)
+                xmax = min(int(center_x + (bbox_width / 2)), width - 1)
+                ymax = min(int(center_y + (bbox_height / 2)), height - 1)
                 voc_labels.append([class_name, xmin, ymin, xmax, ymax])
             return voc_labels
 
@@ -72,8 +72,8 @@ class YOLO2VOC:
         image_file = image_path.split(os.sep)[-1]
         new_image_path = os.path.join(self.voc_images_dir, image_file)
 
-        image_base = image_file.split('.')[0]
-        voc_ann_xml = os.path.join(self.voc_ann_dir, image_base + '.xml')
+        image_id = image_file.split('.')[0]
+        voc_ann_xml = os.path.join(self.voc_ann_dir, image_id + '.xml')
 
         # 1. Construct JPEGImages folder
         shutil.copy(image_path, new_image_path)
@@ -114,20 +114,23 @@ class YOLO2VOC:
         train_samples = set(random.sample(train_val_samples, train_num))
         val_samples = set(train_val_samples).difference(train_samples)
 
-        train_val_path = os.path.join(self.voc_imagesets_main_dir, "trainval.txt")
-        with open(train_val_path, 'w') as fp:
-            for _sample in train_val_samples:
-                fp.write(_sample + '\n')
+        if len(train_val_samples) > 0:
+            train_val_path = os.path.join(self.voc_imagesets_main_dir, "trainval.txt")
+            with open(train_val_path, 'w') as fp:
+                for _sample in train_val_samples:
+                    fp.write(_sample + '\n')
 
-        train_path = os.path.join(self.voc_imagesets_main_dir, "train.txt")
-        with open(train_path, 'w') as fp:
-            for _sample in train_samples:
-                fp.write(_sample + '\n')
+        if len(train_samples) > 0:
+            train_path = os.path.join(self.voc_imagesets_main_dir, "train.txt")
+            with open(train_path, 'w') as fp:
+                for _sample in train_samples:
+                    fp.write(_sample + '\n')
 
-        val_path = os.path.join(self.voc_imagesets_main_dir, "val.txt")
-        with open(val_path, 'w') as fp:
-            for _sample in val_samples:
-                fp.write(_sample + '\n')
+        if len(val_samples) > 0:
+            val_path = os.path.join(self.voc_imagesets_main_dir, "val.txt")
+            with open(val_path, 'w') as fp:
+                for _sample in val_samples:
+                    fp.write(_sample + '\n')
 
         if len(test_samples) > 0:
             test_path = os.path.join(self.voc_imagesets_main_dir, "test.txt")
@@ -139,7 +142,7 @@ class YOLO2VOC:
 def main():
     YOLO_DIR = "/home/yytang/Documents/datasets/Real_Store_ItemDetection_Data/test/TEST_DATASET"
 
-    VOC_DIR = "~/Documents/test/item_pascal_voc"
+    VOC_DIR = "~/Documents/datasets/item/pascal_voc/test"
 
     CLASS_MAPPING = {
         '0': 'person',
