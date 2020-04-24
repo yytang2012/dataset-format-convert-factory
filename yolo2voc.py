@@ -53,15 +53,15 @@ class YOLO2VOC:
             voc_labels = []
             for line in fp.readlines():
                 class_id, center_x, center_y, bbox_width, bbox_height = line.split(None)[:5]
-                class_name = self.class_mapping[class_id]
+                class_name = self.class_mapping[int(class_id)+1]
                 bbox_width = float(bbox_width) * width
                 bbox_height = float(bbox_height) * height
                 center_x = float(center_x) * width
                 center_y = float(center_y) * height
-                xmin = max(int(center_x - (bbox_width / 2)), 1)
-                ymin = max(int(center_y - (bbox_height / 2)), 1)
-                xmax = min(int(center_x + (bbox_width / 2)), width - 1)
-                ymax = min(int(center_y + (bbox_height / 2)), height - 1)
+                xmin = max(round(center_x - (bbox_width / 2), 2), 1.0)
+                ymin = max(round(center_y - (bbox_height / 2), 2), 1.0)
+                xmax = min(round(center_x + (bbox_width / 2), 2), width - 1.0)
+                ymax = min(round(center_y + (bbox_height / 2), 2), height - 1.0)
                 voc_labels.append([class_name, xmin, ymin, xmax, ymax])
             return voc_labels
 
@@ -140,13 +140,17 @@ class YOLO2VOC:
 
 
 def main():
-    YOLO_DIR = "/home/yytang/Documents/datasets/Real_Store_ItemDetection_Data/test/TEST_DATASET"
+    # train set
+    YOLO_DIR = "/home/yytang/Documents/datasets/Real_Store_ItemDetection_Data/train"
+    VOC_DIR = "~/Documents/datasets/item/pascal_voc/train"
 
-    VOC_DIR = "~/Documents/datasets/item/pascal_voc/test"
+    # # test set
+    # YOLO_DIR = "/home/yytang/Documents/datasets/Real_Store_ItemDetection_Data/test/TEST_DATASET"
+    # VOC_DIR = "~/Documents/datasets/item/pascal_voc/test"
 
     CLASS_MAPPING = {
-        '0': 'person',
-        '1': 'item'
+        1: 'person',
+        2: 'item'
         # Add your remaining classes here.
     }
 

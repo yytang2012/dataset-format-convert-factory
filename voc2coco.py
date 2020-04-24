@@ -80,7 +80,6 @@ class VOC2COCO:
             filename = annotation_root.findtext('filename')
         else:
             filename = os.path.basename(path)
-        image_name = os.path.basename(filename)
 
         size = annotation_root.find('size')
         width = int(size.findtext('width'))
@@ -98,10 +97,10 @@ class VOC2COCO:
         assert label in self.label2id, f"Error: {label} is not in label2id !"
         category_id = self.label2id[label]
         bndbox = obj.find('bndbox')
-        xmin = max(int(bndbox.findtext('xmin')) - 1, 1)
-        ymin = max(int(bndbox.findtext('ymin')) - 1, 1)
-        xmax = int(bndbox.findtext('xmax'))
-        ymax = int(bndbox.findtext('ymax'))
+        xmin = max(float(bndbox.findtext('xmin')) - 1.0, 1.0)
+        ymin = max(float(bndbox.findtext('ymin')) - 1.0, 1.0)
+        xmax = float(bndbox.findtext('xmax'))
+        ymax = float(bndbox.findtext('ymax'))
         assert xmax > xmin and ymax > ymin, f"Box size error !: (xmin, ymin, xmax, ymax): {xmin, ymin, xmax, ymax}"
         o_width = xmax - xmin
         o_height = ymax - ymin
@@ -117,12 +116,18 @@ class VOC2COCO:
 
 
 if __name__ == '__main__':
-    VOC_DIR = "~/Documents/datasets/item/pascal_voc/test"
+    # train set
+    VOC_DIR = "~/Documents/datasets/item/pascal_voc/train"
     COCO_DIR = "~/Documents/datasets/item/coco"
-    coco_set_name = "test"
+    coco_set_name = "train"
+
+    # # test set
+    # VOC_DIR = "~/Documents/datasets/item/pascal_voc/test"
+    # COCO_DIR = "~/Documents/datasets/item/coco"
+    # coco_set_name = "test"
     label2id = {
-        "person": "0",
-        "item": "1"
+        "person": 1,
+        "item": 2
     }
     voc2coco = VOC2COCO(VOC_DIR, COCO_DIR, coco_set_name, label2id)
     voc2coco.convert()

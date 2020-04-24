@@ -8,7 +8,7 @@ from visualize.draw_settings import GREEN
 
 def apply_box(image, bbox, color=GREEN, thickness=2, ratio=1):
     thickness *= ceil(ratio)
-    y1, x1, y2, x2 = bbox
+    y1, x1, y2, x2 = [int(i) for i in bbox]
 
     # rgb_color = tuple([int(c * 255) for c in color])
     cv2.rectangle(image, (x1, y1), (x2, y2), color, thickness)
@@ -32,7 +32,8 @@ def apply_text_left(image, bbox, color, text, font_scale=0.5, thickness=1, ratio
     font_scale *= ratio
     thickness *= ceil(ratio)
     if len(bbox) == 4:
-        y1, x1, y2, x2 = bbox
+        y1, x1, y2, x2 = [int(i) for i in bbox]
+
         cv2.putText(image, '{}'.format(text), (x1 + 5, (y1 + y2) // 2),
                     cv2.FONT_HERSHEY_DUPLEX, font_scale, rgb_color, thickness)
     if len(bbox) == 2:

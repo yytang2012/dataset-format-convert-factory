@@ -108,12 +108,13 @@ class ViewDataset:
 
 if __name__ == "__main__":
     CLASS_MAPPING = {
-        '0': 'person',
-        '1': 'item'
+        '1': 'person',
+        '2': 'item'
         # Add your remaining classes here.
     }
     # yolo_dir = "/home/yytang/Documents/datasets/Real_Store_ItemDetection_Data/test/TEST_DATASET"
     view_data = ViewDataset()
     # view_data.yolo(yolo_dir, class2id=CLASS_MAPPING)
-    coco_dir = "~/Documents/test/coco"
-    view_data.coco(coco_dir, "item_test")
+
+    coco_dir = "~/Documents/datasets/item/coco"
+    view_data.coco(coco_dir, "test")
